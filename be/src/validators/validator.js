@@ -19,8 +19,13 @@ const validateTodo = [
   body('title').isLength({ min: 1 }).withMessage("Title of to-do is required"),
 ];
 
+const validateProject = [
+  body('name').isLength({ min: 1 }).withMessage("Name of project is required"),
+];
+
 export {
   validateUserRegistration,
   validateUserLogin,
   validateTodo,
+  validateProject,
 }

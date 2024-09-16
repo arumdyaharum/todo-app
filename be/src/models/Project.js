@@ -1,22 +1,21 @@
 import sequelize from "./setup.js";
 import { DataTypes } from "sequelize";
 import User from "./User.js";
-import Project from "./Project.js";
 
-const Todo = sequelize.define('Todo', {
+const Project = sequelize.define("Project", {
   id: {
     type: DataTypes.STRING,
     allowNull: false,
     primaryKey: true,
     defaultValue: DataTypes.UUIDV4,
   },
-  title: {
+  name: {
     type: DataTypes.TEXT,
     allowNull: false,
   },
-  completed: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false,
+  prefix: {
+    type: DataTypes.TEXT,
+    allowNull: false,
   },
   user_id: {
     type: DataTypes.STRING,
@@ -26,16 +25,8 @@ const Todo = sequelize.define('Todo', {
       key: 'id',
     }
   },
-  project_id: {
-    type: DataTypes.STRING,
-    allowNull: true,
-    references: {
-      model: Project,
-      key: 'id',
-    }
-  },
 }, {
-  tableName: 'todos'
+  tableName: 'projects'
 });
 
-export default Todo;
+export default Project;

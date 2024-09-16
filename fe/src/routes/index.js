@@ -12,10 +12,10 @@ const routes = [
     meta: { requiresAuth: true },     
     children: [
       {
-        path: '',          
+        path: '/',          
         name: 'Inbox',
         component: Inbox,
-      }
+      },
     ]
   }
 ]
@@ -26,7 +26,6 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  console.log("🎀 > router.beforeEach > from:", from)
   const isLoggedIn = !!localStorage.getItem('access_token');
 
   if (to.matched.some(record => record.meta.requiresAuth) && !isLoggedIn) {

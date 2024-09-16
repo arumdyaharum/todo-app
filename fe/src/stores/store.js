@@ -31,18 +31,27 @@ instance.interceptors.response.use(
   }
 );
 
-export const useStore = defineStore('counter', {
+export const useStore = defineStore('store', {
   state: () => {
     return {
       isError: false,
       errorMessage: '',
       todos: [],
+      projects: [],
+      projectId: null,
+      projectName: null,
+      projectPrefix: null,
     }
   },
+  getters: {},
   actions: {
     closeErrorPopup() {
+      const message = this.errorMessage
       this.isError = false
       this.errorMessage = ''
+      if (message.includes('expired')) {
+        window.location = "/login";
+      }
     },
     async doLogin(email, password) {
       try {
@@ -75,19 +84,15 @@ export const useStore = defineStore('counter', {
         return false
       }
     },
-    addTodos(data) {
-      this.todos.unshift(data);
-    },
-    async createTodo(title) {
+    async createTodo(title, project_prefix) {
       try {
         const { data } = await instance.post('/todo', {
-          title
-        })
-        this.todos.unshift({
-          id: data.todoId,
           title,
-          completed: false,
+          project_prefix,
         })
+        if (data.todo_id) {
+          this.getTodos(this.projectName);
+        }
       } catch(err) {
         console.error("Error:", err.response.data);
         this.isError = true
@@ -95,9 +100,9 @@ export const useStore = defineStore('counter', {
         return false
       }
     },
-    async getTodos() {
+    async getTodos(projectName = null) {
       try {
-        const { data } = await instance.get('/todo/all');
+        const { data } = await instance.get(`/todo/all${projectName ? '?projectName=' + projectName : ''}`);
         this.todos = data.data;
       } catch(err) {
         console.error("Error:", err.response.data);
@@ -145,8 +150,64 @@ export const useStore = defineStore('counter', {
     async deleteTodo(id) {
       try {
         const { data } = await instance.delete(`/todo/${id}`);
-        if (data.todoId) {
+        if (data.todo_id) {
           this.todos = this.todos.filter(x => x.id !== id);
+        }
+      } catch(err) {
+        console.error("Error:", err.response.data);
+        this.isError = true
+        this.errorMessage = err.response.data.message
+        return false
+      }
+    },
+    async getProjects() {
+      try {
+        const { data } = await instance.get('/project/all');
+        this.projects = data.data;
+      } catch(err) {
+        console.error("Error:", err.response.data);
+        this.isError = true
+        this.errorMessage = err.response.data.message
+        return false
+      }
+    },
+    async createProject(name) {
+      try {
+        const { data } = await instance.post('/project', { name });
+
+        if (data.project_id) {
+          this.getProjects();
+        }
+      } catch(err) {
+        console.error("Error:", err.response.data);
+        this.isError = true
+        this.errorMessage = err.response.data.message
+        return false
+      }
+    },
+    async editProject(id, name) {
+      try {
+        const { data } = await instance.put(`/project/${id}`, {
+          name
+        });
+
+        if (data.data.id) {
+          this.getProjects();
+          this.getTodos();
+        }
+      } catch(err) {
+        console.error("Error:", err.response.data);
+        this.isError = true
+        this.errorMessage = err.response.data.message
+        return false
+      }
+    },
+    async deleteProject(id) {
+      try {
+        const { data } = await instance.delete(`/project/${id}`);
+        if (data.project_id) {
+          this.getProjects();
+          this.getTodos();
         }
       } catch(err) {
         console.error("Error:", err.response.data);

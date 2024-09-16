@@ -1,4 +1,3 @@
-import { v4 } from 'uuid';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { User } from '../models/index.js';
@@ -15,11 +14,10 @@ class Auth {
       });
 
       if (existingUser) {
-        return res.status(400).json({ error: 'User already exists' });
+        return res.status(400).json({ message: 'User already exists' });
       }
 
       // generate uuid
-      const userId = v4();
       const salt = 10;
       const hashedPassword = await bcrypt.hash(password, salt);
 
@@ -61,7 +59,7 @@ class Auth {
         return res.status(401).json({ message: 'Invalid password' });
       }
 
-      const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
+      const token = jwt.sign({ user_id: user.id }, process.env.JWT_SECRET, {
         expiresIn: '1h',
       });
 
